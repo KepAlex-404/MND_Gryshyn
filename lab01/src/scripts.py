@@ -1,8 +1,24 @@
+import time
 from random import *
 from copy import deepcopy
 
 
+def time_of_function(function):
+    """"Функция-декоратор для замера времени"""
+    def wrapped(*args):
+        start_time = time.time()
+        res = function(*args)
+        time_of_work = time.time() - start_time
+        print(f"Час виконання - {time_of_work} при діапазоні рандому - {args[0]}")
+        return res
+
+    return wrapped
+
+
+@time_of_function
 def main(top_edge):
+    # добавил маленькую задержку что-бы можно было разницу увидеть, а то слишком уж быстро даже при больших числах)
+    time.sleep(1)
     mat = [[randint(1, top_edge) for _ in range(3)] for _ in range(8)]
     a_mat = [randint(1, top_edge) for _ in range(4)]
     Y = [(a_mat[0] + a_mat[1] * mat[i][0] + a_mat[2] * mat[i][1] + a_mat[3] * mat[i][2]) for i in range(8)]
@@ -26,7 +42,7 @@ def main(top_edge):
     y_shuk = nearest([y for y in Y if y < Y_et], Y_et)
     x_for_y_shuk = mat[Y.index(y_shuk)]
 
-    all_table=deepcopy(mat)
+    all_table = deepcopy(mat)
 
     for i, y in enumerate(Y):
         all_table[i].append(y)
@@ -37,7 +53,6 @@ def main(top_edge):
 
     all_table.append(x0_mat)
     all_table.append(dx_mat)
-
     return all_table, y_shuk, x_for_y_shuk
 
 
