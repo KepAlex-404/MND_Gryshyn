@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 /lab01/src/poligon.py
 /int/
+/test.py
