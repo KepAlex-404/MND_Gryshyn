@@ -6,7 +6,7 @@ from numpy.linalg import det
 
 
 class Romanovsky:
-    m = 5
+    m = 21
     average_y = []
     dispersion_y = []
     f_uv = []
@@ -18,6 +18,7 @@ class Romanovsky:
                         (12, 13): 2.66, (14, 15, 16, 17): 2.8, (18, 19, 20): 2.96}
     x1 = [-1, -1, 1]
     x2 = [-1, 1, -1]
+    use_max = 1
 
     def __init__(self, var, x1_min, x1_max, x2_min, x2_max):
         self.x2_max = x2_max
@@ -87,6 +88,12 @@ class Romanovsky:
             if self.m in key:
                 self.r_value = self.romanovsky_table[key]
                 break
+            elif self.m >= 21 and self.use_max:
+                print('Занадто велике значення M, выставляю на максимально доступне')
+                self.m = 20
+            elif self.m >= 21 and not self.use_max:
+                print('Занадто велике значення M')
+                exit()
         return max(self.r_uv) <= self.r_value
 
     def run(self):
