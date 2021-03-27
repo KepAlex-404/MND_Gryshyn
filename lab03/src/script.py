@@ -3,7 +3,8 @@ from pprint import pprint
 import numpy as np
 from math import sqrt
 from scipy import linalg
-
+from scipy.stats import t as t_criterium
+from scipy.stats import f as f_criterium
 
 class Experiment:
     m, N, d = 3, 4, 4
@@ -114,6 +115,11 @@ class Experiment:
         return check, b_list
 
     def make_experiment(self):
+        f1 = self.m-1
+        f2 = self.N
+        f3 = f1*f2
+        f4 = self.N - self.d
+
         mat_disY = self.get_dispersion()
         check, b_list = self.find_cf()
         if self.show_info:
@@ -121,9 +127,9 @@ class Experiment:
 
         print('\nПроверка однородности за Кохрена:')
         if max(mat_disY) / sum(mat_disY) < 0.7679:
-            print('Дисперсия однородная')
+            print('Дисперсия однородная - ', max(mat_disY) / sum(mat_disY))
         else:
-            print('Дисперсия неоднородная')
+            print('Дисперсия неоднородная - ', max(mat_disY) / sum(mat_disY))
 
         print('\nПроверка значимости:\n')
         S2b = sum(mat_disY) / self.N
@@ -132,7 +138,7 @@ class Experiment:
         bb = [sum(self.get_average_y()[k] * self.trans_sx[i][k] for k in range(self.N)) / self.N for i in range(self.N)]
         t = [abs(bb[i]) / Sbs for i in range(self.N)]
         for i in range(self.N):
-            if t[i] < 2.306:
+            if t[i] < t_criterium.ppf(q=0.975, df=f3):
                 print('Незначительный ', b_list[i])
                 b_list[i] = 0
                 self.d -= 1
@@ -147,8 +153,10 @@ class Experiment:
         print('\nПроверка адекватности за Фишера:\n')
         Sad = (self.m / (self.N - self.d)) * int(sum(y_reg[i] - self.get_average_y()[i] for i in range(self.N)) ** 2)
         Fp = Sad / S2b
+        q = 0.05
+        F_table = f_criterium.ppf(q=1-q, dfn=f4, dfd=f3)
         print('FP  =', Fp)
-        if Fp > 4.5:
+        if Fp > F_table:
             print('Неадекватно при 0.05')
         else:
             print('Адекватно при 0.05')
