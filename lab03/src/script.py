@@ -2,6 +2,7 @@ from random import *
 from pprint import pprint
 import numpy as np
 from math import sqrt
+from scipy import linalg
 
 
 class Experiment:
@@ -73,34 +74,40 @@ class Experiment:
         mx, my = self.get_mx_my()
         ai, aii = self.get_ai_aii()
 
-        a12 = a21 = (tran[0][0] * tran[1][0] + tran[0][1] * tran[1][1] + tran[0][2] * tran[1][2] + tran[0][3] * tran[1][3]) / self.N
-        a13 = a31 = (tran[0][0] * tran[2][0] + tran[0][1] * tran[2][1] + tran[0][2] * tran[2][2] + tran[0][3] * tran[2][3]) / self.N
-        a23 = a32 = (tran[1][0] * tran[2][0] + tran[1][1] * tran[2][1] + tran[1][2] * tran[2][2] + tran[1][3] * tran[2][3]) / self.N
-        znamen = np.linalg.det(np.matrix(
+        a12 = a21 = (tran[0][0] * tran[1][0] + tran[0][1] * tran[1][1] + tran[0][2] * tran[1][2] + tran[0][3] * tran[1][
+            3]) / self.N
+        a13 = a31 = (tran[0][0] * tran[2][0] + tran[0][1] * tran[2][1] + tran[0][2] * tran[2][2] + tran[0][3] * tran[2][
+            3]) / self.N
+        a23 = a32 = (tran[1][0] * tran[2][0] + tran[1][1] * tran[2][1] + tran[1][2] * tran[2][2] + tran[1][3] * tran[2][
+            3]) / self.N
+
+        # Використовую об'єкт linalg та його метод det з бібліотеки scipy для знаходження к-ів рівняння
+
+        znamen = linalg.det(
             [[1, mx[0], mx[1], mx[2]],
              [mx[0], aii[0], a12, a13],
              [mx[1], a12, aii[1], a32],
-             [mx[2], a13, a23, aii[2]]]))
+             [mx[2], a13, a23, aii[2]]])
 
-        b0 = np.linalg.det(np.matrix([[my, mx[0], mx[1], mx[2]],
-                                      [ai[0], aii[0], a12, a13],
-                                      [ai[1], a12, aii[1], a32],
-                                      [ai[2], a13, a23, aii[2]]])) / znamen
+        b0 = linalg.det([[my, mx[0], mx[1], mx[2]],
+                         [ai[0], aii[0], a12, a13],
+                         [ai[1], a12, aii[1], a32],
+                         [ai[2], a13, a23, aii[2]]]) / znamen
 
-        b1 = np.linalg.det(np.matrix([[1, my, mx[1], mx[2]],
-                                      [mx[0], ai[0], a12, a13],
-                                      [mx[1], ai[1], aii[1], a32],
-                                      [mx[2], ai[2], a23, aii[2]]])) / znamen
+        b1 = linalg.det([[1, my, mx[1], mx[2]],
+                         [mx[0], ai[0], a12, a13],
+                         [mx[1], ai[1], aii[1], a32],
+                         [mx[2], ai[2], a23, aii[2]]]) / znamen
 
-        b2 = np.linalg.det(np.matrix([[1, mx[0], my, mx[2]],
-                                      [mx[0], aii[0], ai[0], a13],
-                                      [mx[1], a12, ai[1], a32],
-                                      [mx[2], a13, ai[2], aii[2]]])) / znamen
+        b2 = linalg.det([[1, mx[0], my, mx[2]],
+                         [mx[0], aii[0], ai[0], a13],
+                         [mx[1], a12, ai[1], a32],
+                         [mx[2], a13, ai[2], aii[2]]]) / znamen
 
-        b3 = np.linalg.det(np.matrix([[1, mx[0], mx[1], my],
-                                      [mx[0], aii[0], a12, ai[0]],
-                                      [mx[1], a12, aii[1], ai[1]],
-                                      [mx[2], a13, a23, ai[2]]])) / znamen
+        b3 = linalg.det([[1, mx[0], mx[1], my],
+                         [mx[0], aii[0], a12, ai[0]],
+                         [mx[1], a12, aii[1], ai[1]],
+                         [mx[2], a13, a23, ai[2]]]) / znamen
 
         check = [b0 + b1 * tran[0][i] + b2 * tran[1][i] + b3 * tran[2][i] for i in range(4)]
         b_list = [b0, b1, b2, b3]
@@ -122,17 +129,20 @@ class Experiment:
         S2b = sum(mat_disY) / self.N
         S2bs = S2b / (self.m * self.N)
         Sbs = sqrt(S2bs)
-        bb = [sum(self.get_average_y()[k] * self.trans_sx[i][k] for k in range(self.N))/self.N for i in range(self.N)]
-        t = [abs(bb[i])/Sbs for i in range(self.N)]
+        bb = [sum(self.get_average_y()[k] * self.trans_sx[i][k] for k in range(self.N)) / self.N for i in range(self.N)]
+        t = [abs(bb[i]) / Sbs for i in range(self.N)]
         for i in range(self.N):
             if t[i] < 2.306:
                 print('Незначительный ', b_list[i])
                 b_list[i] = 0
                 self.d -= 1
 
-        y_reg = [b_list[0] + b_list[1] * self.mat_X[i][0] + b_list[2] * self.mat_X[i][1] + b_list[3] * self.mat_X[i][2] for i in range(self.N)]
+        y_reg = [b_list[0] + b_list[1] * self.mat_X[i][0] + b_list[2] * self.mat_X[i][1] + b_list[3] * self.mat_X[i][2]
+                 for i in range(self.N)]
         print('Значения у:\n')
-        [print(f"{b_list[0]} + {b_list[1]}*x1 + {b_list[2]}*x2 + {b_list[3]}*x3 = {b_list[0] + b_list[1] * self.mat_X[i][0] + b_list[2] * self.mat_X[i][1] + b_list[3] * self.mat_X[i][2]}") for i in range(self.N)]
+        [print(
+            f"{b_list[0]} + {b_list[1]}*x1 + {b_list[2]}*x2 + {b_list[3]}*x3 = {b_list[0] + b_list[1] * self.mat_X[i][0] + b_list[2] * self.mat_X[i][1] + b_list[3] * self.mat_X[i][2]}")
+            for i in range(self.N)]
 
         print('\nПроверка адекватности за Фишера:\n')
         Sad = (self.m / (self.N - self.d)) * int(sum(y_reg[i] - self.get_average_y()[i] for i in range(self.N)) ** 2)
@@ -142,4 +152,3 @@ class Experiment:
             print('Неадекватно при 0.05')
         else:
             print('Адекватно при 0.05')
-
