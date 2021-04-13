@@ -34,6 +34,8 @@ class Experiment:
     list_bi = []
 
     def __init__(self, x1, x2, x3):
+        [i.clear() for i in self.x_main_list[1:]]
+        self.x_main_list = [self.x0_factor, self.x1_list, self.x2_list, self.x3_list, self.x1x2_list, self.x1x3_list, self.x2x3_list, self.x1x2x3_list]
 
         self.F1 = self.m - 1
         self.F2 = self.N
@@ -83,7 +85,7 @@ class Experiment:
 
         Gp = max(self.get_dispersion()) / sum(self.get_dispersion())
         Gt = cohren_teor(self.F1, self.F2)
-        print("\nGp = ", Gp, " Gt = ", Gt)
+        # print("\nGp = ", Gp, " Gt = ", Gt)
         return Gp < Gt
 
     def fisher(self):
@@ -115,24 +117,24 @@ class Experiment:
         cols = self.x_factor_list
         [cols.extend(ls) for ls in [trans_y_mat, [y_average], [dispersion]]]
         [pt.add_column(column_names1[coll_id], cols[coll_id]) for coll_id in range(13)]
-        print(pt, "\n")
-        print('Рівняння регресії з коефіцієнтами від нормованих значень факторів')
-        print("y = {} + {}*x1 + {}*x2 + {}*x3 + {}*x1x2 + {}*x1x3 + {}*x2x3 + {}*x1x2x3 \n".format(*self.list_bi))
+        # print(pt, "\n")
+        # print('Рівняння регресії з коефіцієнтами від нормованих значень факторів')
+        # print("y = {} + {}*x1 + {}*x2 + {}*x3 + {}*x1x2 + {}*x1x3 + {}*x2x3 + {}*x1x2x3 \n".format(*self.list_bi))
 
         pt = PrettyTable()
         cols = self.x_main_list
         [cols.extend(ls) for ls in [trans_y_mat, [y_average], [dispersion]]]
         [pt.add_column(column_names1[coll_id], cols[coll_id]) for coll_id in range(13)]
-        print(pt, "\n")
+        # print(pt, "\n")
 
         """solve з бібліотеки numpy вирішує систему рівнянь відносно невідомих к-тів
          рівняння регресії при використанні натуральних значень"""
         list_ai = [round(i, 5) for i in solve(list_for_solve_a, y_average)]
-        print('Рівняння регресії з коефіцієнтами від натуральних значень факторів')
-        print("y = {} + {}*x1 + {}*x2 + {}*x3 + {}*x1x2 + {}*x1x3 + {}*x2x3 + {}*x1x2x3".format(*list_ai))
+        # print('Рівняння регресії з коефіцієнтами від натуральних значень факторів')
+        # print("y = {} + {}*x1 + {}*x2 + {}*x3 + {}*x1x2 + {}*x1x3 + {}*x2x3 + {}*x1x2x3".format(*list_ai))
 
         if self.cohren():
-            print("Дисперсія однорідна!\n")
+            # print("Дисперсія однорідна!\n")
             Dispersion_B = sum_dispersion / self.N
             Dispersion_beta = Dispersion_B / (self.m * self.N)
             S_beta = math.sqrt(abs(Dispersion_beta))
@@ -150,11 +152,11 @@ class Experiment:
 
             for i, j in enumerate(t_list):
                 if j < t_criterium.ppf(q=0.975, df=self.F3):
-                    print(f'незначний {beta_list[i]}')
+                    # print(f'незначний {beta_list[i]}')
                     beta_list[i] = 0
                     self.d -= 1
-            print()
-            print("y = {} + {}*x1 + {}*x2 + {}*x3 + {}*x1x2 + {}*x1x3 + {}*x2x3 + {}*x1x2x3".format(*beta_list))
+            # print()
+            # print("y = {} + {}*x1 + {}*x2 + {}*x3 + {}*x1x2 + {}*x1x3 + {}*x2x3 + {}*x1x2x3".format(*beta_list))
 
             Y_counted = [sum([beta_list[0], *[beta_list[i] * self.x_main_list[1:][j][i] for i in range(self.N)]])
                          for j in range(self.N)]
@@ -164,7 +166,7 @@ class Experiment:
             Fp = Dispersion_ad / Dispersion_beta
             Ft = self.fisher()
 
-            if Ft > Fp:
-                print("Рівняння регресії адекватне!")
-            else:
-                print("Рівняння регресії неадекватне.")
+            # if Ft > Fp:
+            #     print("Рівняння регресії адекватне!")
+            # else:
+            #     print("Рівняння регресії неадекватне.")

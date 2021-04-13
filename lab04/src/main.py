@@ -1,8 +1,9 @@
 import logging
 import os
 import sys
-from pycallgraph import PyCallGraph
-from pycallgraph.output import GraphvizOutput
+import time
+from numpy import average
+
 
 logging.basicConfig(filename='app.log', filemode='w', format='%(levelname)s - %(message)s')
 
@@ -14,11 +15,15 @@ except ImportError:
 
 
 if __name__ == '__main__':
-    e = Experiment((10, 40), (25, 45), (40, 45))
 
     try:
-        with PyCallGraph(output=GraphvizOutput()):
+        list_of_runs = []
+        for _ in range(100):
+            start = time.time()
+            e = Experiment((10, 40), (25, 45), (40, 45))
             e.make_experiment()
+            list_of_runs.append(time.time()-start)
+        print('Average time of execute - ', average(list_of_runs))
     except Exception as e:
         logging.exception(f'{e} in module '
                           f'- {os.path.split(sys.exc_info()[-1].tb_frame.f_code.co_filename)[1]} '
