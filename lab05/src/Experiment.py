@@ -54,7 +54,9 @@ class Experiment:
 
         print('\nКоефіцієнти рівняння регресії:')
         self.b = [round(i, 3) for i in self.b]
-        print("y = {} +{}*x1 +{}*x2 +{}*x3 + {}*x1*x2 + {}*x1*x3 + {}*x2*x3 + b{}*x1*x2*x3 + {}x1^2 + {}x2^2 + {}x3^2\n".format(*self.b))
+        print(
+            "y = {} +{}*x1 +{}*x2 +{}*x3 + {}*x1*x2 + {}*x1*x3 + {}*x2*x3 + b{}*x1*x2*x3 + {}x1^2 + {}x2^2 + {}x3^2\n".format(
+                *self.b))
         print('\nРезультат рівняння зі знайденими коефіцієнтами:\n', np.dot(self.x, self.b))
 
     def run_check(self):
@@ -114,10 +116,10 @@ class Experiment:
         print('\nПеревірка адекватності за критерієм Фішера')
         print('Fp =', F_p)
         print('F_t =', f_t)
-        if F_p < f_t:
-            print('Математична модель адекватна експериментальним даним')
-        else:
+        if len(final_k) == 2:
             print('Математична модель не адекватна експериментальним даним')
+        else:
+            print('Математична модель адекватна експериментальним даним')
 
     def fill_y(self):
         self.y = np.zeros(shape=(self.n, self.m))
@@ -193,6 +195,3 @@ class Experiment:
 
         self.count_b_coeficient()
         self.run_check()
-
-
-
