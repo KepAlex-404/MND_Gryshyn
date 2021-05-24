@@ -1,4 +1,17 @@
+import time
 from scipy.stats import f
+
+
+def time_of_function(function):
+    """"Функция-декоратор для замера времени"""
+    def wrapped(*args):
+        start_time = time.perf_counter()
+        res = function(*args)
+        time_of_work = time.perf_counter() - start_time
+        print(f"Час виконання - {time_of_work}")
+        return res
+
+    return wrapped
 
 
 class Criteria:
@@ -21,6 +34,7 @@ class Criteria:
             res.append(round(s, 3))
         return res
 
+    @time_of_function
     def criteria_cochrana(self, y_aver):
         S_kv = self.s_kv(y_aver)
         Gp = max(S_kv) / sum(S_kv)
@@ -39,6 +53,7 @@ class Criteria:
 
         return res
 
+    @time_of_function
     def criteria_studenta(self, x, y_aver):
         S_kv = self.s_kv(y_aver)
         s_kv_aver = sum(S_kv) / self.n
@@ -49,6 +64,7 @@ class Criteria:
 
         return ts
 
+    @time_of_function
     def criteria_fishera(self, y_aver, y_new, d):
         S_ad = self.m / (self.n - d) * sum([(y_new[i] - y_aver[i]) ** 2 for i in range(len(self.y))])
         S_kv = self.s_kv(y_aver)
